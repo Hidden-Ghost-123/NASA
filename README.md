@@ -32,3 +32,33 @@ Wrote the simplest possible test before building anything. set up the folder str
 
 <img width="444" height="440" alt="Screenshot 2026-06-12 164829" src="https://github.com/user-attachments/assets/2d466a69-a851-47a6-ab87-7aeded90240e" />
 
+
+# NASA Explorer
+
+Explore NASA data from the command line — Astronomy Picture of the Day, Mars Rover photos, and Near-Earth Objects.
+
+Works out of the box with bundled demo data. No API key required.
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+```bash
+python nasa.py apod    # Astronomy Picture of the Day
+python nasa.py mars    # Mars Rover photos (Curiosity, Sol 1000)
+python nasa.py neo     # Near Earth Object / asteroid feed
+```
+
+## Live NASA data (optional)
+
+Get a free key at [api.nasa.gov](https://api.nasa.gov/) — no credit card needed.
+
+```bash
+NASA_API_KEY=your_key USE_DEMO_DATA=false python nasa.py apod
+```
+
+
