@@ -1,465 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NASA Explorer</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MISSION FILE // NASA Field Log</title>
+<style>
+  /* paper mission-log look instead of the usual dark space UI */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --paper:#f2e9d3;
+    --paper-dark:#e6d9b8;
+    --ink:#2c2a1f;
+    --ink-soft:#5c5540;
+    --rust:#b6461e;
+    --rust-dark:#8a3115;
+    --olive:#4a5d3a;
+    --olive-dark:#33421f;
+    --danger:#a3230f;
+    --safe:#3d5e2f;
+    --line:#c9b98c;
+    --mono: 'Courier New', ui-monospace, monospace;
+  }
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(circle at 10% 5%, rgba(182,70,30,0.05), transparent 40%),
+      radial-gradient(circle at 90% 90%, rgba(74,93,58,0.06), transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    font-family:var(--mono);
+    font-size:14px;
+    line-height:1.6;
+    background-attachment:fixed;
+  }
+  /* paper grain via noisy stripes */
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+    z-index:0;
+  }
+  #app{
+    position:relative; z-index:1;
+    max-width:900px;
+    margin:0 auto;
+    padding:22px 18px 60px;
+  }
+  /* ---- Header styled like a case-file cover stamp ---- */
+  header{
+    border:3px double var(--ink);
+    padding:18px 20px 16px;
+    margin-bottom:22px;
+    background:var(--paper-dark);
+    position:relative;
+    transform:rotate(-0.3deg);
+  }
+  header .stamp{
+    position:absolute;
+    top:-14px; right:22px;
+    background:var(--rust);
+    color:var(--paper);
+    padding:5px 12px;
+    font-size:10px;
+    letter-spacing:0.14em;
+    transform:rotate(4deg);
+    border:1px solid var(--rust-dark);
+    box-shadow:2px 2px 0 rgba(0,0,0,0.15);
+  }
+  header h1{
+    font-size:clamp(20px,4.4vw,30px);
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+  }
+  header h1 span{color:var(--rust);}
+  header .sub{
+    margin-top:6px;
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.04em;
+  }
+  header .fileno{
+    margin-top:10px;
+    font-size:10px;
+    color:var(--ink-soft);
+    border-top:1px dashed var(--line);
+    padding-top:8px;
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;
+  }
+  /* ---- fact-stamp button (easter egg) ---- */
+  #fact-btn{
+    background:var(--olive);
+    color:var(--paper);
+    border:1px solid var(--olive-dark);
+    padding:6px 12px;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:0.08em;
+    cursor:pointer;
+    text-transform:uppercase;
+  }
+  #fact-btn:hover{background:var(--olive-dark);}
+  #fact-box{
+    margin-top:10px;
+    font-size:11.5px;
+    color:var(--ink);
+    background:var(--paper);
+    border-left:3px solid var(--olive);
+    padding:8px 10px;
+    display:none;
+  }
+  #fact-box.show{display:block;}
 
-    :root {
-      --bg:      #07090f;
-      --surface: #0d1120;
-      --border:  #1a2540;
-      --text:    #b8ccdf;
-      --muted:   #4a6080;
-      --accent:  #3d9eff;
-      --hazard:  #ff5e3a;
-      --safe:    #3dcc8e;
-      --mono:    'Courier New', monospace;
-    }
+  /* ---- tabs styled like manila folder tabs ---- */
+  .tabs{
+    display:flex; gap:6px; flex-wrap:wrap;
+    margin-bottom:20px;
+  }
+  .tab{
+    background:var(--paper-dark);
+    border:2px solid var(--ink);
+    border-bottom:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:0.08em;
+    padding:9px 16px 8px;
+    text-transform:uppercase;
+    position:relative; top:2px;
+    transition:transform .1s;
+  }
+  .tab:hover{transform:translateY(-2px);}
+  .tab.active{
+    background:var(--paper);
+    color:var(--rust);
+    border-color:var(--rust);
+    top:0;
+    font-weight:bold;
+  }
+  .panel{display:none; border:2px solid var(--ink); background:var(--paper); padding:20px; }
+  .panel.active{display:block; animation:unfold .22s ease;}
+  @keyframes unfold{from{opacity:0; transform:scaleY(.97) translateY(-4px);} to{opacity:1; transform:scaleY(1) translateY(0);}}
 
-    html, body { height: 100%; }
+  .card{
+    border:1px dashed var(--line);
+    padding:16px 18px;
+    margin-bottom:16px;
+    background:rgba(255,255,255,0.25);
+  }
+  .card-title{
+    font-size:12.5px;
+    color:var(--rust-dark);
+    margin-bottom:10px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    border-bottom:1px dashed var(--line);
+    padding-bottom:6px;
+  }
+  .label{
+    font-size:10.5px;
+    color:var(--ink-soft);
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+  }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
+  #apod-img{
+    width:100%; display:block; margin-bottom:14px;
+    max-height:420px; object-fit:cover;
+    border:2px solid var(--ink);
+    filter:sepia(0.18) contrast(1.03);
+  }
+  #apod-title{font-size:15px; color:var(--ink); margin-bottom:4px; font-weight:bold;}
+  #apod-meta{font-size:10.5px; color:var(--ink-soft); margin-bottom:12px;}
+  #apod-text{font-size:13px; line-height:1.75;}
 
-    /* ── Stars background ─────────────────────────────────────────── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image:
-        radial-gradient(1px 1px at 10% 20%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 30% 60%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 55% 10%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 70% 80%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 85% 40%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 20% 90%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 45% 45%, #fff 0%, transparent 100%),
-        radial-gradient(1px 1px at 92% 15%, #fff 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 5% 50%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 60% 70%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1.5px 1.5px at 80% 25%, rgba(255,255,255,0.6) 0%, transparent 100%),
-        radial-gradient(1px 1px at 40% 85%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 15% 35%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 75% 55%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 95% 65%, rgba(255,255,255,0.4) 0%, transparent 100%),
-        radial-gradient(1px 1px at 25% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 50% 95%, rgba(255,255,255,0.3) 0%, transparent 100%),
-        radial-gradient(1px 1px at 65% 30%, rgba(255,255,255,0.3) 0%, transparent 100%);
-      opacity: 0.8;
-      pointer-events: none;
-      z-index: 0;
-    }
+  .date-nav{display:flex; align-items:center; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .date-nav input[type="date"]{
+    background:var(--paper); border:1px solid var(--ink); color:var(--ink);
+    font-family:var(--mono); font-size:12px; padding:6px 9px; outline:none;
+  }
+  .btn{
+    background:var(--paper-dark); border:1px solid var(--ink); color:var(--ink);
+    cursor:pointer; font-family:var(--mono); font-size:10.5px; letter-spacing:0.06em;
+    padding:7px 13px; text-transform:uppercase; transition:all .12s;
+  }
+  .btn:hover{background:var(--rust); color:var(--paper); border-color:var(--rust-dark);}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:var(--rust); color:var(--paper); border-color:var(--rust-dark);}
+  .btn.small{padding:4px 9px; font-size:9.5px;}
+  .btn.ghost{background:transparent;}
 
-    #app {
-      position: relative;
-      z-index: 1;
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 24px 16px 48px;
-      min-height: 100vh;
-    }
+  .photo-grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+    gap:10px; margin-top:14px;
+  }
+  .photo-thumb{
+    position:relative; aspect-ratio:1; overflow:hidden;
+    border:1px solid var(--ink); cursor:pointer;
+    filter:sepia(0.12);
+  }
+  .photo-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .photo-cam{
+    position:absolute; bottom:0; left:0; right:0;
+    background:rgba(44,42,31,0.85); color:var(--paper);
+    font-size:9.5px; padding:4px 6px; letter-spacing:0.05em;
+  }
+  .photo-save{
+    position:absolute; top:4px; right:4px;
+    background:rgba(242,233,211,0.92); border:1px solid var(--ink);
+    font-size:12px; width:22px; height:22px; line-height:1; cursor:pointer;
+  }
+  .camera-filter{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;}
+  .cam-btn{
+    background:transparent; border:1px solid var(--line); color:var(--ink-soft);
+    cursor:pointer; font-family:var(--mono); font-size:9.5px; letter-spacing:0.05em;
+    padding:4px 9px; text-transform:uppercase; transition:all .1s;
+  }
+  .cam-btn:hover,.cam-btn.active{border-color:var(--rust); color:var(--rust);}
 
-    header {
-      text-align: center;
-      padding: 32px 0 28px;
-    }
+  #lightbox{
+    display:none; position:fixed; inset:0; background:rgba(44,42,31,0.94);
+    z-index:100; align-items:center; justify-content:center; flex-direction:column; gap:12px; padding:20px;
+  }
+  #lightbox.open{display:flex;}
+  #lightbox img{max-width:100%; max-height:80vh; border:2px solid var(--paper);}
+  #lightbox-close{position:absolute; top:16px; right:20px; background:none; border:none; color:var(--paper); cursor:pointer; font-size:22px;}
+  #lightbox-meta{font-size:11px; color:var(--paper-dark); text-align:center;}
 
-    header h1 {
-      font-family: var(--mono);
-      font-size: clamp(18px, 4vw, 28px);
-      letter-spacing: 0.18em;
-      color: #fff;
-      text-transform: uppercase;
-    }
+  .neo-row{
+    display:grid; grid-template-columns:1fr auto; align-items:start; gap:12px;
+    padding:12px 0; border-bottom:1px dashed var(--line);
+  }
+  .neo-row:last-child{border-bottom:none;}
+  .neo-name{font-size:12.5px; font-weight:bold;}
+  .neo-name.hazard{color:var(--danger);}
+  .neo-stats{font-size:11px; color:var(--ink-soft); margin-top:4px;}
+  .neo-badge{
+    font-size:9.5px; letter-spacing:0.06em; padding:3px 8px; text-transform:uppercase;
+    border:1px solid; white-space:nowrap;
+  }
+  .neo-badge.safe{color:var(--safe); border-color:var(--safe);}
+  .neo-badge.danger{color:var(--danger); border-color:var(--danger); background:rgba(163,35,15,0.08);}
 
-    header h1 span { color: var(--accent); }
+  #danger-ring-wrap{display:flex; flex-direction:column; align-items:center; gap:10px; padding:20px 0 14px;}
+  .ring-label{font-size:10.5px; color:var(--ink-soft); letter-spacing:0.06em; text-align:center;}
+  #ring-name{font-size:11px; color:var(--ink-soft); text-align:center; margin-top:2px;}
 
-    header p {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: 0.06em;
-    }
+  .loading{text-align:center; padding:34px; color:var(--ink-soft); font-size:11px; letter-spacing:0.1em;}
+  .loading::after{content:''; display:inline-block; width:12px; animation:dots 1.2s steps(4,end) infinite;}
+  @keyframes dots{0%{content:'';}25%{content:'.';}50%{content:'..';}75%{content:'...';}100%{content:'';}}
 
-    .tabs {
-      display: flex;
-      gap: 2px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 28px;
-    }
+  footer{text-align:center; padding-top:26px; font-size:10.5px; color:var(--ink-soft);}
+  footer a{color:var(--rust-dark); text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+  .divider{border:none; border-top:1px dashed var(--line); margin:16px 0;}
 
-    .tab {
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--muted);
-      cursor: pointer;
-      font-family: var(--mono);
-      font-size: 12px;
-      letter-spacing: 0.1em;
-      padding: 10px 20px;
-      text-transform: uppercase;
-      transition: color 0.15s, border-color 0.15s;
-      margin-bottom: -1px;
-    }
+  /* ---- LOG tab (scrapbook feature) ---- */
+  .log-empty{text-align:center; padding:30px; color:var(--ink-soft); font-size:12px;}
+  .log-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px;}
+  .log-card{border:1px solid var(--ink); background:var(--paper-dark); padding:8px; position:relative;}
+  .log-card img{width:100%; aspect-ratio:1; object-fit:cover; border:1px solid var(--ink); margin-bottom:6px;}
+  .log-card .cap{font-size:10px; color:var(--ink-soft); margin-bottom:6px; min-height:24px;}
+  .log-card .rm{width:100%; font-size:9px;}
+  .log-actions{margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;}
 
-    .tab:hover { color: var(--text); }
-    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .panel { display: none; }
-    .panel.active { display: block; animation: fadeUp 0.25s ease; }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 20px 24px;
-      margin-bottom: 16px;
-    }
-
-    .card-title {
-      font-family: var(--mono);
-      font-size: 13px;
-      color: #fff;
-      margin-bottom: 10px;
-      letter-spacing: 0.04em;
-    }
-
-    .label {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    #apod-img {
-      width: 100%;
-      border-radius: 4px;
-      display: block;
-      margin-bottom: 16px;
-      max-height: 420px;
-      object-fit: cover;
-    }
-
-    #apod-title {
-      font-family: var(--mono);
-      font-size: 15px;
-      color: #fff;
-      margin-bottom: 6px;
-    }
-
-    #apod-meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 14px;
-      font-family: var(--mono);
-    }
-
-    #apod-text {
-      font-size: 13px;
-      line-height: 1.75;
-      color: var(--text);
-    }
-
-    .date-nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .date-nav input[type="date"] {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 12px;
-      padding: 6px 10px;
-      outline: none;
-    }
-
-    .date-nav input[type="date"]:focus { border-color: var(--accent); }
-
-    .btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--text);
-      cursor: pointer;
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.06em;
-      padding: 7px 14px;
-      text-transform: uppercase;
-      transition: border-color 0.15s, color 0.15s;
-    }
-
-    .btn:hover { border-color: var(--accent); color: var(--accent); }
-    .btn:active { opacity: 0.7; }
-    .btn.primary { border-color: var(--accent); color: var(--accent); }
-
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .photo-thumb {
-      position: relative;
-      aspect-ratio: 1;
-      overflow: hidden;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      transition: border-color 0.15s;
-    }
-
-    .photo-thumb:hover { border-color: var(--accent); }
-
-    .photo-thumb img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.2s;
-    }
-
-    .photo-thumb:hover img { transform: scale(1.04); }
-
-    .photo-cam {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      background: rgba(7,9,15,0.85);
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 4px 6px;
-      color: var(--accent);
-      letter-spacing: 0.06em;
-    }
-
-    .camera-filter {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .cam-btn {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      color: var(--muted);
-      cursor: pointer;
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.06em;
-      padding: 4px 9px;
-      text-transform: uppercase;
-      transition: all 0.12s;
-    }
-
-    .cam-btn:hover, .cam-btn.active {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    #lightbox {
-      display: none;
-      position: fixed; inset: 0;
-      background: rgba(7,9,15,0.95);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 12px;
-      padding: 20px;
-    }
-
-    #lightbox.open { display: flex; }
-
-    #lightbox img {
-      max-width: 100%;
-      max-height: 80vh;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-    }
-
-    #lightbox-close {
-      position: absolute;
-      top: 16px; right: 20px;
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 22px;
-      line-height: 1;
-    }
-
-    #lightbox-close:hover { color: #fff; }
-
-    #lightbox-meta {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .neo-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: start;
-      gap: 12px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .neo-row:last-child { border-bottom: none; }
-
-    .neo-name {
-      font-family: var(--mono);
-      font-size: 13px;
-      color: #fff;
-    }
-
-    .neo-name.hazard { color: var(--hazard); }
-
-    .neo-stats {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
-
-    .neo-badge {
-      font-family: var(--mono);
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      padding: 3px 8px;
-      border-radius: 3px;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .neo-badge.safe    { background: rgba(61,204,142,0.12); color: var(--safe); border: 1px solid rgba(61,204,142,0.3); }
-    .neo-badge.danger  { background: rgba(255,94,58,0.12);  color: var(--hazard); border: 1px solid rgba(255,94,58,0.3); }
-
-    #danger-ring-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 28px 0 20px;
-    }
-
-    #danger-ring-wrap svg { overflow: visible; }
-
-    .ring-label {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.08em;
-      text-align: center;
-    }
-
-    #ring-value {
-      font-family: var(--mono);
-      font-size: 22px;
-      color: #fff;
-      text-align: center;
-    }
-
-    #ring-name {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 4px;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 12px;
-      letter-spacing: 0.1em;
-    }
-
-    .loading::after {
-      content: '';
-      display: inline-block;
-      width: 12px;
-      animation: dots 1.2s steps(4, end) infinite;
-    }
-
-    @keyframes dots {
-      0%   { content: ''; }
-      25%  { content: '.'; }
-      50%  { content: '..'; }
-      75%  { content: '...'; }
-      100% { content: ''; }
-    }
-
-    footer {
-      text-align: center;
-      padding-top: 32px;
-      font-size: 11px;
-      color: var(--muted);
-      font-family: var(--mono);
-      letter-spacing: 0.06em;
-    }
-
-    footer a { color: var(--muted); text-decoration: none; }
-    footer a:hover { color: var(--accent); }
-
-    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-
-    @media (max-width: 500px) {
-      .photo-grid { grid-template-columns: repeat(2, 1fr); }
-      .date-nav { gap: 6px; }
-    }
-  </style>
+  @media (max-width:500px){
+    .photo-grid{grid-template-columns:repeat(2,1fr);}
+    .date-nav{gap:6px;}
+    header .stamp{position:static; display:inline-block; margin-top:10px; transform:none;}
+  }
+</style>
 </head>
 <body>
-
 <div id="app">
+
   <header>
-    <h1>NASA <span>EXPLORER</span></h1>
-    <p>Open data from NASA's public APIs</p>
+    <div class="stamp">DECLASSIFIED-ish</div>
+    <h1>MISSION <span>FILE</span></h1>
+    <p class="sub">A hand-kept log of NASA's open data — sky photo of the day, Mars rover frames, and passing asteroids.</p>
+    <div class="fileno">
+      <span>FORM NX-07 · REV. B</span>
+      <button id="fact-btn" onclick="revealFact()">Stamp a random fact</button>
+    </div>
+    <div id="fact-box"></div>
   </header>
 
   <nav class="tabs">
-    <button class="tab active" onclick="switchTab('apod', this)">APOD</button>
-    <button class="tab" onclick="switchTab('mars', this)">Mars</button>
-    <button class="tab" onclick="switchTab('neo',  this)">Asteroids</button>
+    <button class="tab active" onclick="switchTab('apod', this)">Sky Photo</button>
+    <button class="tab" onclick="switchTab('mars', this)">Mars Frames</button>
+    <button class="tab" onclick="switchTab('neo', this)">Asteroid Watch</button>
+    <button class="tab" onclick="switchTab('log', this)">My Log (<span id="log-count">0</span>)</button>
   </nav>
 
+  <!-- APOD -->
   <section id="panel-apod" class="panel active">
     <div class="date-nav">
       <span class="label">Date</span>
       <input type="date" id="apod-date" onchange="loadApod(this.value)" />
-      <button class="btn" onclick="offsetApodDate(-1)">← Prev</button>
-      <button class="btn" onclick="offsetApodDate(1)">Next →</button>
+      <button class="btn" onclick="offsetApodDate(-1)">&larr; Prev</button>
+      <button class="btn" onclick="offsetApodDate(1)">Next &rarr;</button>
       <button class="btn primary" onclick="loadApod()">Today</button>
     </div>
     <div id="apod-content" class="loading">Loading</div>
   </section>
 
+  <!-- MARS -->
   <section id="panel-mars" class="panel">
     <div class="card" style="margin-bottom:16px">
       <div class="label" style="margin-bottom:10px">Camera filter</div>
@@ -468,52 +314,65 @@
     <div id="mars-content" class="loading">Loading</div>
   </section>
 
-  <!-- NEO ───────────────────────────────────────────────────────────── -->
+  <!-- NEO -->
   <section id="panel-neo" class="panel">
     <div class="card" style="margin-bottom:16px">
-      <div class="label" style="margin-bottom:4px">Closest hazardous approach</div>
+      <div class="label" style="margin-bottom:4px">Closest approach in feed</div>
       <div id="danger-ring-wrap">
         <svg id="danger-svg" width="140" height="140" viewBox="0 0 140 140">
-          <circle cx="70" cy="70" r="58" fill="none" stroke="#1a2540" stroke-width="8"/>
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#c9b98c" stroke-width="8"/>
           <circle id="ring-arc" cx="70" cy="70" r="58" fill="none"
-                  stroke="#3dcc8e" stroke-width="8"
-                  stroke-dasharray="364" stroke-dashoffset="364"
-                  stroke-linecap="round"
-                  transform="rotate(-90 70 70)"
-                  style="transition: stroke-dashoffset 1s ease, stroke 1s ease"/>
-          <text x="70" y="65" text-anchor="middle"
-                font-family="'Courier New', monospace" font-size="13" fill="#b8ccdf" id="ring-km">—</text>
-          <text x="70" y="82" text-anchor="middle"
-                font-family="'Courier New', monospace" font-size="9" fill="#4a6080">million km</text>
+            stroke="#3d5e2f" stroke-width="8"
+            stroke-dasharray="364" stroke-dashoffset="364"
+            stroke-linecap="round"
+            transform="rotate(-90 70 70)"
+            style="transition: stroke-dashoffset 1s ease, stroke 1s ease"/>
+          <text x="70" y="65" text-anchor="middle" font-family="'Courier New', monospace" font-size="13" fill="#2c2a1f" id="ring-km">&mdash;</text>
+          <text x="70" y="82" text-anchor="middle" font-family="'Courier New', monospace" font-size="9" fill="#5c5540">million km</text>
         </svg>
-        <div class="ring-label">Nearest asteroid in feed</div>
-        <div id="ring-name">—</div>
+        <div class="ring-label">Nearest object tracked this week</div>
+        <div id="ring-name">&mdash;</div>
       </div>
     </div>
     <div id="neo-content" class="loading">Loading</div>
   </section>
+
+  <!-- LOG (scrapbook feature) -->
+  <section id="panel-log" class="panel">
+    <div class="card-title">Saved clippings</div>
+    <p style="font-size:11.5px; color:var(--ink-soft); margin-bottom:12px;">
+      Tap the &#9733; on any Mars frame, or "Save to Log" on the sky photo, to pin it here. Kept only in this browser tab.
+    </p>
+    <div id="log-content"><div class="log-empty">Your log is empty. Go clip something.</div></div>
+    <div class="log-actions">
+      <button class="btn small" onclick="clearLog()">Clear log</button>
+      <button class="btn small" onclick="exportLog()">Export as text</button>
+    </div>
+  </section>
+
 </div>
 
 <div id="lightbox" onclick="closeLightbox()">
-  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button id="lightbox-close" onclick="closeLightbox()">&times;</button>
   <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()"/>
   <div id="lightbox-meta"></div>
 </div>
 
 <footer>
   <a href="https://api.nasa.gov/" target="_blank">api.nasa.gov</a>
-  &nbsp;·&nbsp; data provided by NASA
+  &nbsp;&middot;&nbsp; open data, kept like a field log
 </footer>
 
 <script>
-const API_KEY = 'DEMO_KEY';   // replace with your key from api.nasa.gov
-const BASE    = 'https://api.nasa.gov';
+/* api calls + demo fallbacks */
+const API_KEY = 'DEMO_KEY'; // swap for your own key from api.nasa.gov
+const BASE = 'https://api.nasa.gov';
 
 const DEMO = {
   apod: {
     date: '2024-07-04',
     title: 'The Crab Nebula in Multiwavelength',
-    explanation: 'The Crab Nebula (M1) is a supernova remnant about 6,500 light-years away in Taurus. This composite combines data from Chandra X-ray (blue and white), Hubble (yellow), Spitzer infrared (pink), and VLT (red). At its center lies a pulsar — a neutron star spinning 30 times per second — that powers the entire nebula\'s glow. The Crab spans roughly 11 light-years and is one of the most-studied objects in the sky.',
+    explanation: 'The Crab Nebula (M1) is a supernova remnant about 6,500 light-years away in Taurus. This composite combines data from Chandra X-ray, Hubble, Spitzer infrared, and VLT. At its center sits a pulsar spinning 30 times per second, powering the whole nebula\'s glow. The Crab spans roughly 11 light-years and remains one of the most-studied objects in the sky.',
     url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Crab_Nebula.jpg/960px-Crab_Nebula.jpg',
     hdurl: 'https://upload.wikimedia.org/wikipedia/commons/0/00/Crab_Nebula.jpg',
     copyright: 'NASA, ESA, Chandra, Hubble, Spitzer',
@@ -543,9 +402,23 @@ const DEMO = {
   },
 };
 
-let marsPhotos    = [];
-let activeCam     = 'ALL';
-let apodDateStr   = '';
+const SPACE_FACTS = [
+  'A day on Venus is longer than its year — it rotates slower than it orbits the Sun.',
+  'Neutron stars can spin over 600 times per second without tearing apart.',
+  'The footprints on the Moon will likely outlast the pyramids — there is no wind to erode them.',
+  'Saturn would float in water if you found a bathtub big enough.',
+  'One teaspoon of neutron star material would weigh about as much as a mountain.',
+  'Voyager 1 is now more than 24 billion km away and still phoning home.',
+  'The Sun accounts for over 99.8% of all the mass in the solar system.',
+  'Mars sunsets look blue because fine dust scatters red light out of the way.',
+  'There is a giant cloud of alcohol drifting in a nebula called Sagittarius B2.',
+  'Olympus Mons on Mars is about three times the height of Everest.',
+];
+
+let marsPhotos = [];
+let activeCam = 'ALL';
+let apodDateStr = '';
+let currentApod = null;
 
 async function apiFetch(path, params = {}) {
   params.api_key = API_KEY;
@@ -555,10 +428,12 @@ async function apiFetch(path, params = {}) {
   return res.json();
 }
 
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+/* ---- APOD ---- */
 async function loadApod(date) {
   const el = document.getElementById('apod-content');
   el.className = 'loading'; el.textContent = 'Loading';
-
   let data;
   try {
     const params = date ? { date } : {};
@@ -567,7 +442,7 @@ async function loadApod(date) {
     data = DEMO.apod;
     if (!date) date = data.date;
   }
-
+  currentApod = data;
   apodDateStr = data.date;
   const dateInput = document.getElementById('apod-date');
   dateInput.value = data.date;
@@ -576,23 +451,19 @@ async function loadApod(date) {
 
   el.className = '';
   el.innerHTML = `
-    <img id="apod-img" src="${data.url}" alt="${data.title}"
-         onerror="this.style.display='none'" />
+    <img id="apod-img" src="${data.url}" alt="${data.title}" onerror="this.style.display='none'" />
     <div id="apod-title">${data.title}</div>
     <div id="apod-meta">
-      ${data.date}${data.copyright ? ' &nbsp;·&nbsp; © ' + data.copyright : ''}
-      ${data.media_type === 'video' ? ' &nbsp;·&nbsp; <a href="' + data.url + '" target="_blank" style="color:var(--accent)">Watch video ↗</a>' : ''}
+      ${data.date}${data.copyright ? ' &middot; &copy; ' + data.copyright : ''}
+      ${data.media_type === 'video' ? ' &middot; <a href="' + data.url + '" target="_blank" style="color:var(--rust-dark)">Watch video &#8599;</a>' : ''}
     </div>
     <hr class="divider"/>
     <p id="apod-text">${data.explanation}</p>
-    ${data.hdurl && data.media_type === 'image'
-      ? `<p style="margin-top:14px"><a href="${data.hdurl}" target="_blank" class="btn">HD Image ↗</a></p>`
-      : ''}
+    <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+      ${data.hdurl && data.media_type === 'image' ? `<a href="${data.hdurl}" target="_blank" class="btn">HD Image &#8599;</a>` : ''}
+      <button class="btn" onclick="saveApodToLog()">&#9733; Save to Log</button>
+    </div>
   `;
-}
-
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
 }
 
 function offsetApodDate(delta) {
@@ -603,17 +474,16 @@ function offsetApodDate(delta) {
   loadApod(s);
 }
 
+/* ---- MARS ---- */
 async function loadMars() {
   const el = document.getElementById('mars-content');
   el.className = 'loading'; el.textContent = 'Loading';
-
   try {
     const data = await apiFetch('/mars-photos/api/v1/rovers/curiosity/photos', { sol: 1000 });
     marsPhotos = data.photos || [];
   } catch {
     marsPhotos = DEMO.mars;
   }
-
   buildCamFilter();
   renderMarsPhotos();
 }
@@ -622,70 +492,59 @@ function buildCamFilter() {
   const cams = ['ALL', ...new Set(marsPhotos.map(p => p.camera.name))];
   const wrap = document.getElementById('cam-filter');
   wrap.innerHTML = cams.map(c =>
-    `<button class="cam-btn${c === activeCam ? ' active' : ''}"
-             onclick="setCam('${c}')">${c}</button>`
+    `<button class="cam-btn${c === activeCam ? ' active' : ''}" onclick="setCam('${c}')">${c}</button>`
   ).join('');
 }
 
 function setCam(cam) {
   activeCam = cam;
-  document.querySelectorAll('.cam-btn').forEach(b => {
-    b.classList.toggle('active', b.textContent === cam);
-  });
+  document.querySelectorAll('.cam-btn').forEach(b => b.classList.toggle('active', b.textContent === cam));
   renderMarsPhotos();
 }
 
 function renderMarsPhotos() {
   const filtered = activeCam === 'ALL' ? marsPhotos : marsPhotos.filter(p => p.camera.name === activeCam);
   const el = document.getElementById('mars-content');
-  if (!filtered.length) { el.innerHTML = '<p style="color:var(--muted);font-size:12px;text-align:center;padding:24px">No photos for this camera.</p>'; return; }
-
+  if (!filtered.length) { el.innerHTML = '<p style="color:var(--ink-soft);font-size:12px;text-align:center;padding:24px">No frames for this camera.</p>'; return; }
   el.className = '';
   el.innerHTML = `
-    <div class="label" style="margin-bottom:12px">
-      ${filtered.length} photo${filtered.length !== 1 ? 's' : ''} — Curiosity Sol 1000
-    </div>
+    <div class="label" style="margin-bottom:12px">${filtered.length} frame${filtered.length !== 1 ? 's' : ''} &mdash; Curiosity Sol 1000</div>
     <div class="photo-grid">
       ${filtered.map(p => `
-        <div class="photo-thumb" onclick="openLightbox('${p.img_src}', '${p.camera.full_name} · Sol ${p.sol} · ${p.earth_date}')">
+        <div class="photo-thumb">
           <img src="${p.img_src}" alt="${p.camera.name}" loading="lazy"
+               onclick="openLightbox('${p.img_src}', '${p.camera.full_name} &middot; Sol ${p.sol} &middot; ${p.earth_date}')"
                onerror="this.parentElement.style.display='none'"/>
           <div class="photo-cam">${p.camera.name}</div>
+          <button class="photo-save" title="Save to log" onclick="saveMarsToLog(${p.id})">&#9734;</button>
         </div>
       `).join('')}
     </div>
   `;
 }
 
+/* ---- NEO ---- */
 async function loadNeo() {
   const el = document.getElementById('neo-content');
   el.className = 'loading'; el.textContent = 'Loading';
-
   let data;
   try {
     const today = todayStr();
-    const end   = new Date(); end.setDate(end.getDate() + 6);
-    data = await apiFetch('/neo/rest/v1/feed', {
-      start_date: today,
-      end_date: end.toISOString().slice(0, 10),
-    });
+    const end = new Date(); end.setDate(end.getDate() + 6);
+    data = await apiFetch('/neo/rest/v1/feed', { start_date: today, end_date: end.toISOString().slice(0,10) });
   } catch {
     data = DEMO.neo;
   }
-
   const allObjects = Object.values(data.near_earth_objects).flat();
   const total = data.element_count;
   const hazardous = allObjects.filter(o => o.is_potentially_hazardous_asteroid);
 
-  // Danger ring — closest miss distance overall
   const closest = allObjects.reduce((best, o) => {
     const km = parseFloat(o.close_approach_data[0]?.miss_distance?.kilometers || Infinity);
     return km < best.km ? { km, name: o.name, hazard: o.is_potentially_hazardous_asteroid } : best;
   }, { km: Infinity, name: '—', hazard: false });
-
   updateDangerRing(closest);
 
-  // Render list
   const sorted = allObjects.sort((a, b) => {
     const ka = parseFloat(a.close_approach_data[0]?.miss_distance?.kilometers || Infinity);
     const kb = parseFloat(b.close_approach_data[0]?.miss_distance?.kilometers || Infinity);
@@ -694,24 +553,22 @@ async function loadNeo() {
 
   el.className = '';
   el.innerHTML = `
-    <div class="label" style="margin-bottom:16px">
-      ${total} near-earth objects · ${hazardous.length} potentially hazardous
-    </div>
+    <div class="label" style="margin-bottom:16px">${total} near-earth objects &middot; ${hazardous.length} potentially hazardous</div>
     ${sorted.map(o => {
-      const ca    = o.close_approach_data[0];
-      const km    = parseFloat(ca?.miss_distance?.kilometers || 0);
+      const ca = o.close_approach_data[0];
+      const km = parseFloat(ca?.miss_distance?.kilometers || 0);
       const speed = parseFloat(ca?.relative_velocity?.kilometers_per_hour || 0);
-      const diam  = o.estimated_diameter.meters;
-      const h     = o.is_potentially_hazardous_asteroid;
+      const diam = o.estimated_diameter.meters;
+      const h = o.is_potentially_hazardous_asteroid;
       return `
         <div class="neo-row">
           <div>
             <div class="neo-name${h ? ' hazard' : ''}">${o.name}</div>
             <div class="neo-stats">
-              ${ca?.close_approach_date} &nbsp;·&nbsp;
-              ${(km / 1e6).toFixed(2)}M km miss &nbsp;·&nbsp;
-              ${(speed / 1000).toFixed(1)}k km/h &nbsp;·&nbsp;
-              ${diam.estimated_diameter_min.toFixed(0)}–${diam.estimated_diameter_max.toFixed(0)} m
+              ${ca?.close_approach_date} &middot;
+              ${(km/1e6).toFixed(2)}M km miss &middot;
+              ${(speed/1000).toFixed(1)}k km/h &middot;
+              ${diam.estimated_diameter_min.toFixed(0)}&ndash;${diam.estimated_diameter_max.toFixed(0)} m
             </div>
           </div>
           <span class="neo-badge ${h ? 'danger' : 'safe'}">${h ? 'Hazardous' : 'Safe'}</span>
@@ -723,33 +580,95 @@ async function loadNeo() {
 
 function updateDangerRing({ km, name, hazard }) {
   const MAX_KM = 10_000_000;
-  const pct    = Math.min(km / MAX_KM, 1);
-  const CIRC   = 2 * Math.PI * 58; // r=58
+  const pct = Math.min(km / MAX_KM, 1);
+  const CIRC = 2 * Math.PI * 58;
   const offset = CIRC * (1 - pct);
-  const color  = hazard ? '#ff5e3a' : pct > 0.6 ? '#3dcc8e' : pct > 0.3 ? '#f0c040' : '#ff5e3a';
-
+  const color = hazard ? '#a3230f' : pct > 0.6 ? '#3d5e2f' : pct > 0.3 ? '#8a6d1e' : '#a3230f';
   const arc = document.getElementById('ring-arc');
   arc.style.strokeDashoffset = offset;
   arc.style.stroke = color;
-
-  document.getElementById('ring-km').textContent  = (km / 1e6).toFixed(2);
+  document.getElementById('ring-km').textContent = (km/1e6).toFixed(2);
   document.getElementById('ring-name').textContent = name;
 }
 
+/* ---- lightbox ---- */
 function openLightbox(src, meta) {
-  document.getElementById('lightbox-img').src  = src;
-  document.getElementById('lightbox-meta').textContent = meta;
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-meta').innerHTML = meta;
   document.getElementById('lightbox').classList.add('open');
 }
-
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-}
-
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
-let loaded = { apod: false, mars: false, neo: false };
+/* log tab — lets you pin a photo instead of just browsing */
+let logItems = [];
 
+function saveApodToLog() {
+  if (!currentApod) return;
+  addLogItem({
+    img: currentApod.url,
+    caption: `${currentApod.title} — ${currentApod.date}`,
+  });
+}
+function saveMarsToLog(id) {
+  const p = marsPhotos.find(x => x.id === id);
+  if (!p) return;
+  addLogItem({
+    img: p.img_src,
+    caption: `${p.camera.name} — Sol ${p.sol} — ${p.earth_date}`,
+  });
+}
+function addLogItem(item) {
+  if (logItems.some(x => x.img === item.img)) return; // no dupes
+  logItems.push(item);
+  document.getElementById('log-count').textContent = logItems.length;
+  renderLog();
+}
+function removeLogItem(idx) {
+  logItems.splice(idx, 1);
+  document.getElementById('log-count').textContent = logItems.length;
+  renderLog();
+}
+function clearLog() {
+  logItems = [];
+  document.getElementById('log-count').textContent = 0;
+  renderLog();
+}
+function renderLog() {
+  const el = document.getElementById('log-content');
+  if (!logItems.length) {
+    el.innerHTML = '<div class="log-empty">Your log is empty. Go clip something.</div>';
+    return;
+  }
+  el.innerHTML = `<div class="log-grid">
+    ${logItems.map((it, i) => `
+      <div class="log-card">
+        <img src="${it.img}" alt="" onerror="this.style.display='none'"/>
+        <div class="cap">${it.caption}</div>
+        <button class="btn small rm" onclick="removeLogItem(${i})">Remove</button>
+      </div>
+    `).join('')}
+  </div>`;
+}
+function exportLog() {
+  if (!logItems.length) return;
+  const text = logItems.map((it, i) => `${i+1}. ${it.caption}\n   ${it.img}`).join('\n\n');
+  const blob = new Blob([`MISSION FILE — SAVED CLIPPINGS\n\n${text}`], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mission-log.txt';
+  a.click();
+}
+
+/* random fact stamp */
+function revealFact() {
+  const box = document.getElementById('fact-box');
+  const fact = SPACE_FACTS[Math.floor(Math.random() * SPACE_FACTS.length)];
+  box.textContent = '» ' + fact;
+  box.classList.add('show');
+}
+
+let loaded = { apod:false, mars:false, neo:false, log:true };
 function switchTab(id, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -757,9 +676,7 @@ function switchTab(id, btn) {
   document.getElementById('panel-' + id).classList.add('active');
   if (!loaded[id]) { loaded[id] = true; loaders[id](); }
 }
-
-const loaders = { apod: () => loadApod(), mars: loadMars, neo: loadNeo };
-
+const loaders = { apod: () => loadApod(), mars: loadMars, neo: loadNeo, log: () => {} };
 loaded.apod = true;
 loadApod();
 </script>
