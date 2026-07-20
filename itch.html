@@ -20,16 +20,23 @@
     --safe:#3d5e2f;
     --line:#c9b98c;
     --mono: 'Courier New', ui-monospace, monospace;
+    --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
   }
-  html,body{height:100%;}
+  html{height:100%;}
+  html,body{
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+  }
   body{
+    min-height:100%;
     background:
       radial-gradient(circle at 10% 5%, rgba(182,70,30,0.05), transparent 40%),
       radial-gradient(circle at 90% 90%, rgba(74,93,58,0.06), transparent 45%),
       var(--paper);
     color:var(--ink);
-    font-family:var(--mono);
-    font-size:14px;
+    font-family:var(--serif);
+    font-size:15px;
     line-height:1.6;
     background-attachment:fixed;
   }
@@ -69,24 +76,26 @@
     box-shadow:2px 2px 0 rgba(0,0,0,0.15);
   }
   header h1{
-    font-size:clamp(20px,4.4vw,30px);
-    letter-spacing:0.06em;
+    font-size:clamp(22px,4.4vw,32px);
+    letter-spacing:0.02em;
     text-transform:uppercase;
   }
   header h1 span{color:var(--rust);}
   header .sub{
     margin-top:6px;
-    font-size:11px;
+    font-size:13px;
+    font-style:italic;
     color:var(--ink-soft);
-    letter-spacing:0.04em;
   }
   header .fileno{
     margin-top:10px;
     font-size:10px;
+    font-family:var(--mono);
     color:var(--ink-soft);
     border-top:1px dashed var(--line);
     padding-top:8px;
     display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;
+    align-items:center;
   }
   /* ---- fact-stamp button (easter egg) ---- */
   #fact-btn{
@@ -151,17 +160,19 @@
   }
   .card-title{
     font-size:12.5px;
+    font-family:var(--mono);
     color:var(--rust-dark);
     margin-bottom:10px;
-    letter-spacing:0.05em;
+    letter-spacing:0.04em;
     text-transform:uppercase;
     border-bottom:1px dashed var(--line);
     padding-bottom:6px;
   }
   .label{
     font-size:10.5px;
+    font-family:var(--mono);
     color:var(--ink-soft);
-    letter-spacing:0.09em;
+    letter-spacing:0.06em;
     text-transform:uppercase;
   }
 
@@ -171,9 +182,9 @@
     border:2px solid var(--ink);
     filter:sepia(0.18) contrast(1.03);
   }
-  #apod-title{font-size:15px; color:var(--ink); margin-bottom:4px; font-weight:bold;}
-  #apod-meta{font-size:10.5px; color:var(--ink-soft); margin-bottom:12px;}
-  #apod-text{font-size:13px; line-height:1.75;}
+  #apod-title{font-size:17px; color:var(--ink); margin-bottom:4px; font-weight:bold;}
+  #apod-meta{font-size:10.5px; font-family:var(--mono); color:var(--ink-soft); margin-bottom:12px;}
+  #apod-text{font-size:15px; line-height:1.75;}
 
   .date-nav{display:flex; align-items:center; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
   .date-nav input[type="date"]{
@@ -204,6 +215,7 @@
   .photo-cam{
     position:absolute; bottom:0; left:0; right:0;
     background:rgba(44,42,31,0.85); color:var(--paper);
+    font-family:var(--mono);
     font-size:9.5px; padding:4px 6px; letter-spacing:0.05em;
   }
   .photo-save{
@@ -226,17 +238,18 @@
   #lightbox.open{display:flex;}
   #lightbox img{max-width:100%; max-height:80vh; border:2px solid var(--paper);}
   #lightbox-close{position:absolute; top:16px; right:20px; background:none; border:none; color:var(--paper); cursor:pointer; font-size:22px;}
-  #lightbox-meta{font-size:11px; color:var(--paper-dark); text-align:center;}
+  #lightbox-meta{font-size:11px; font-family:var(--mono); color:var(--paper-dark); text-align:center;}
 
   .neo-row{
     display:grid; grid-template-columns:1fr auto; align-items:start; gap:12px;
     padding:12px 0; border-bottom:1px dashed var(--line);
   }
   .neo-row:last-child{border-bottom:none;}
-  .neo-name{font-size:12.5px; font-weight:bold;}
+  .neo-name{font-size:13.5px; font-weight:bold;}
   .neo-name.hazard{color:var(--danger);}
-  .neo-stats{font-size:11px; color:var(--ink-soft); margin-top:4px;}
+  .neo-stats{font-size:11px; font-family:var(--mono); color:var(--ink-soft); margin-top:4px;}
   .neo-badge{
+    font-family:var(--mono);
     font-size:9.5px; letter-spacing:0.06em; padding:3px 8px; text-transform:uppercase;
     border:1px solid; white-space:nowrap;
   }
@@ -244,14 +257,14 @@
   .neo-badge.danger{color:var(--danger); border-color:var(--danger); background:rgba(163,35,15,0.08);}
 
   #danger-ring-wrap{display:flex; flex-direction:column; align-items:center; gap:10px; padding:20px 0 14px;}
-  .ring-label{font-size:10.5px; color:var(--ink-soft); letter-spacing:0.06em; text-align:center;}
-  #ring-name{font-size:11px; color:var(--ink-soft); text-align:center; margin-top:2px;}
+  .ring-label{font-size:10.5px; font-family:var(--mono); color:var(--ink-soft); letter-spacing:0.06em; text-align:center;}
+  #ring-name{font-size:11px; font-family:var(--mono); color:var(--ink-soft); text-align:center; margin-top:2px;}
 
-  .loading{text-align:center; padding:34px; color:var(--ink-soft); font-size:11px; letter-spacing:0.1em;}
+  .loading{text-align:center; padding:34px; color:var(--ink-soft); font-size:11px; font-family:var(--mono); letter-spacing:0.1em;}
   .loading::after{content:''; display:inline-block; width:12px; animation:dots 1.2s steps(4,end) infinite;}
   @keyframes dots{0%{content:'';}25%{content:'.';}50%{content:'..';}75%{content:'...';}100%{content:'';}}
 
-  footer{text-align:center; padding-top:26px; font-size:10.5px; color:var(--ink-soft);}
+  footer{text-align:center; padding-top:26px; font-size:10.5px; font-family:var(--mono); color:var(--ink-soft);}
   footer a{color:var(--rust-dark); text-decoration:none;}
   footer a:hover{text-decoration:underline;}
   .divider{border:none; border-top:1px dashed var(--line); margin:16px 0;}
@@ -260,8 +273,11 @@
   .log-empty{text-align:center; padding:30px; color:var(--ink-soft); font-size:12px;}
   .log-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px;}
   .log-card{border:1px solid var(--ink); background:var(--paper-dark); padding:8px; position:relative;}
+  .log-card:nth-child(3n+1){transform:rotate(-0.6deg);}
+  .log-card:nth-child(3n+2){transform:rotate(0.5deg);}
+  .log-card:nth-child(3n){transform:rotate(-0.3deg);}
   .log-card img{width:100%; aspect-ratio:1; object-fit:cover; border:1px solid var(--ink); margin-bottom:6px;}
-  .log-card .cap{font-size:10px; color:var(--ink-soft); margin-bottom:6px; min-height:24px;}
+  .log-card .cap{font-size:10px; font-family:var(--mono); color:var(--ink-soft); margin-bottom:6px; min-height:24px;}
   .log-card .rm{width:100%; font-size:9px;}
   .log-actions{margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;}
 
@@ -276,11 +292,11 @@
 <div id="app">
 
   <header>
-    <div class="stamp">DECLASSIFIED-ish</div>
+    <div class="stamp">NOT AFFILIATED WITH NASA</div>
     <h1>MISSION <span>FILE</span></h1>
-    <p class="sub">A hand-kept log of NASA's open data — sky photo of the day, Mars rover frames, and passing asteroids.</p>
+    <p class="sub">A little scrapbook for NASA's open data — today's sky photo, the newest Mars rover frames, and whatever asteroids are passing by this week.</p>
     <div class="fileno">
-      <span>FORM NX-07 · REV. B</span>
+      <span>kept by hand, updated whenever I remember to check</span>
       <button id="fact-btn" onclick="revealFact()">Stamp a random fact</button>
     </div>
     <div id="fact-box"></div>
@@ -378,11 +394,11 @@ const DEMO = {
     copyright: 'NASA, ESA, Chandra, Hubble, Spitzer',
   },
   mars: [
-    { id:102693, sol:1000, earth_date:'2015-05-30', camera:{name:'FHAZ', full_name:'Front Hazard Avoidance Camera'}, img_src:'https://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/fcam/FLB_486615455EDR_F0481570FHAZ00323M_.JPG', rover:{name:'Curiosity'} },
-    { id:102694, sol:1000, earth_date:'2015-05-30', camera:{name:'NAVCAM', full_name:'Navigation Camera'}, img_src:'https://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/ncam/NLB_486615680EDR_F0481570NCAM00207M_.JPG', rover:{name:'Curiosity'} },
-    { id:102695, sol:1000, earth_date:'2015-05-30', camera:{name:'MAST', full_name:'Mast Camera'}, img_src:'https://mars.jpl.nasa.gov/msl-raw-images/msss/01000/mcam/1000MR0044631400500570E01_DXXX.jpg', rover:{name:'Curiosity'} },
-    { id:102696, sol:1000, earth_date:'2015-05-30', camera:{name:'CHEMCAM', full_name:'Chemistry and Camera Complex'}, img_src:'https://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/ccam/CR0_486630530EDR_F0481570CCAM05000M_.JPG', rover:{name:'Curiosity'} },
-    { id:102697, sol:1000, earth_date:'2015-05-30', camera:{name:'RHAZ', full_name:'Rear Hazard Avoidance Camera'}, img_src:'https://mars.jpl.nasa.gov/msl-raw-images/proj/msl/redops/ods/surface/sol/01000/opgs/edr/rcam/RLB_486615614EDR_F0481570RHAZ00323M_.JPG', rover:{name:'Curiosity'} },
+    { id:'NLE_1923_0837648337_646ECM_N0894178SCAM01923_00_0LLJ', sol:1923, earth_date:'2026-07-18', camera:{name:'NAVCAM', full_name:'Left Navigation Camera'}, img_src:'https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/01923/ids/edr/browse/ncam/NLE_1923_0837648337_646ECM_N0894178SCAM01923_00_0LLJ01_800.jpg', rover:{name:'Perseverance'} },
+    { id:'LRE_1923_0837648267_310ECM_N0894178SCAM01923_0100I6J', sol:1923, earth_date:'2026-07-18', camera:{name:'SUPERCAM', full_name:'SuperCam Remote Micro-Imager'}, img_src:'https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/01923/ids/edr/browse/scam/LRE_1923_0837648267_310ECM_N0894178SCAM01923_0100I6J01_800.jpg', rover:{name:'Perseverance'} },
+    { id:'WSM_1923_0837639452_000ECM_N0894178MEDA00000_0000LUJ', sol:1923, earth_date:'2026-07-18', camera:{name:'SKYCAM', full_name:'MEDA SkyCam'}, img_src:'https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/01923/ids/edr/browse/meda/WSM_1923_0837639452_000ECM_N0894178MEDA00000_0000LUJ01_800.jpg', rover:{name:'Perseverance'} },
+    { id:'ZR7_1922_0837569846_207EBY_N0894178ZCAM01002_1100LMJ', sol:1922, earth_date:'2026-07-17', camera:{name:'MASTCAM-Z', full_name:'Right Mastcam-Z'}, img_src:'https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/01922/ids/edr/browse/zcam/ZR7_1922_0837569846_207EBY_N0894178ZCAM01002_1100LMJ01_800.jpg', rover:{name:'Perseverance'} },
+    { id:'RLF_1922_0837568318_114ECM_N0894178RHAZ02420_01_295J', sol:1922, earth_date:'2026-07-17', camera:{name:'RHAZ', full_name:'Rear Hazard Avoidance Camera'}, img_src:'https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/01922/ids/edr/browse/rcam/RLF_1922_0837568318_114ECM_N0894178RHAZ02420_01_295J01_800.jpg', rover:{name:'Perseverance'} },
   ],
   neo: {
     element_count: 5,
@@ -474,13 +490,44 @@ function offsetApodDate(delta) {
   loadApod(s);
 }
 
-/* ---- MARS ---- */
+/* ---- MARS ----
+   The api.nasa.gov mars-photos endpoint (a community-run proxy) has been
+   shut down, so this pulls straight from NASA's own raw-image feed for
+   Perseverance instead — same rover programme, still live. */
+const MARS_CAM_NAMES = {
+  NAVCAM_LEFT:'NAVCAM', NAVCAM_RIGHT:'NAVCAM',
+  MCZ_LEFT:'MASTCAM-Z', MCZ_RIGHT:'MASTCAM-Z',
+  SUPERCAM_RMI:'SUPERCAM',
+  SKYCAM:'SKYCAM',
+  FRONT_HAZCAM_LEFT_A:'FHAZ', FRONT_HAZCAM_RIGHT_A:'FHAZ',
+  REAR_HAZCAM_LEFT:'RHAZ', REAR_HAZCAM_RIGHT:'RHAZ',
+  CACHECAM:'CACHECAM',
+  SHERLOC_WATSON:'WATSON',
+};
+function marsCamShortName(instrument) {
+  return MARS_CAM_NAMES[instrument] || instrument.replace(/_LEFT.*|_RIGHT.*|_A$/, '');
+}
+function marsCamFullName(title, instrument) {
+  const m = /Sol \d+:\s*(.+)$/.exec(title || '');
+  return (m ? m[1].trim() : instrument).replace(/\s*Camera$/, ' Camera');
+}
+
 async function loadMars() {
   const el = document.getElementById('mars-content');
   el.className = 'loading'; el.textContent = 'Loading';
   try {
-    const data = await apiFetch('/mars-photos/api/v1/rovers/curiosity/photos', { sol: 1000 });
-    marsPhotos = data.photos || [];
+    const res = await fetch('https://mars.nasa.gov/rss/api/?feed=raw_images&category=mars2020&feedtype=json&num=60&page=0&order=sol+desc');
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    marsPhotos = (data.images || []).map(im => ({
+      id: im.imageid,
+      sol: im.sol,
+      earth_date: (im.date_taken_utc || '').slice(0, 10),
+      camera: { name: marsCamShortName(im.camera.instrument), full_name: marsCamFullName(im.title, im.camera.instrument) },
+      img_src: im.image_files.medium || im.image_files.large,
+      rover: { name: 'Perseverance' },
+    }));
+    if (!marsPhotos.length) throw new Error('empty feed');
   } catch {
     marsPhotos = DEMO.mars;
   }
@@ -507,8 +554,11 @@ function renderMarsPhotos() {
   const el = document.getElementById('mars-content');
   if (!filtered.length) { el.innerHTML = '<p style="color:var(--ink-soft);font-size:12px;text-align:center;padding:24px">No frames for this camera.</p>'; return; }
   el.className = '';
+  const sols = filtered.map(p => p.sol);
+  const solLabel = sols.length ? (Math.min(...sols) === Math.max(...sols) ? `Sol ${Math.min(...sols)}` : `Sols ${Math.min(...sols)}&ndash;${Math.max(...sols)}`) : '';
+  const roverLabel = filtered[0]?.rover?.name || 'Mars rover';
   el.innerHTML = `
-    <div class="label" style="margin-bottom:12px">${filtered.length} frame${filtered.length !== 1 ? 's' : ''} &mdash; Curiosity Sol 1000</div>
+    <div class="label" style="margin-bottom:12px">${filtered.length} frame${filtered.length !== 1 ? 's' : ''} &mdash; ${roverLabel}, ${solLabel}</div>
     <div class="photo-grid">
       ${filtered.map(p => `
         <div class="photo-thumb">
@@ -516,7 +566,7 @@ function renderMarsPhotos() {
                onclick="openLightbox('${p.img_src}', '${p.camera.full_name} &middot; Sol ${p.sol} &middot; ${p.earth_date}')"
                onerror="this.parentElement.style.display='none'"/>
           <div class="photo-cam">${p.camera.name}</div>
-          <button class="photo-save" title="Save to log" onclick="saveMarsToLog(${p.id})">&#9734;</button>
+          <button class="photo-save" title="Save to log" onclick="saveMarsToLog('${p.id}')">&#9734;</button>
         </div>
       `).join('')}
     </div>
